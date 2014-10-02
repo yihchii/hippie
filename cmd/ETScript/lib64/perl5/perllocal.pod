@@ -1,0 +1,22 @@
+=head2 Fri Sep 26 18:38:43 2014: C<Module> L<Math::CDF|Math::CDF>
+
+=over 4
+
+=item *
+
+C<installed into: /mnt/data/genomics/NGS/svn/GASPipe/trunk/hippie/cmd/ETScript/share/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.1>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
