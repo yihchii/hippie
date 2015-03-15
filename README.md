@@ -13,6 +13,6 @@
 
 If you use HIPPIE for your research, please use the following citation:
 
-> Hwang Y-C, Lin C-F, Valladares O, Malamon J, Kuksa P P, Zheng Q, Gregory B D, and Wang L-S. HIPPIE: A high-throughput identification pipeline for promoter interacting enhancer elements. (2014, under revision)
+> Hwang Y.-C., Lin C.-F., Valladares O., Malamon J., Kuksa P. P., Zheng Q., Gregory B. D., and Wang L.-S.. HIPPIE: A high-throughput identification pipeline for promoter interacting enhancer elements. (2014, Bioinformatics) doi: 10.1093/bioinformatics/btu801
 
 
