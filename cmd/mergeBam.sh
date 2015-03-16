@@ -11,7 +11,6 @@ rm -f ${1}.ba?
 INPUT_STR=""
 
 for f in $BAM_DIR/*.bam
-#for f in $BAM_DIR/*$2.bam
 do
  INPUT_STR=$INPUT_STR"INPUT=$f "
 done;

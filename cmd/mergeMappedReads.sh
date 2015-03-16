@@ -31,8 +31,8 @@ UNIQFILES=*_uniq.txt.gz
 
 echo "[`date`]get the mapping END sites and generate the bed format of pair reads"
 
-	bedtools slop -i "${LINE}_left_temp1.bed" -g "${GENOME_LEN}" -r "${ADDLENGTH}" -l 0 > "${LINE}_left_temp2.bed"
-	bedtools slop -i "${LINE}_right_temp1.bed" -g "${GENOME_LEN}" -r "${ADDLENGTH}" -l 0 > "${LINE}_right_temp2.bed"
+	${BEDTOOLS} slop -i "${LINE}_left_temp1.bed" -g "${GENOME_LEN}" -r "${ADDLENGTH}" -l 0 > "${LINE}_left_temp2.bed"
+	${BEDTOOLS} slop -i "${LINE}_right_temp1.bed" -g "${GENOME_LEN}" -r "${ADDLENGTH}" -l 0 > "${LINE}_right_temp2.bed"
 
 	paste "${LINE}_left_temp2.bed" "${LINE}_right_temp2.bed" "${LINE}_read_strands.txt" > s_${LINE}.bed
 

@@ -34,11 +34,6 @@ function getPeakFragment {
     $QSUB -hold_jid getFragmentsRead${LINE} -N getPeakFragment${LINE} $QSUBARGS -l h_vmem=6G "$CMD_DIR/getPeakFragment.sh" "${LINE}" "${RE}" "${THRE}"
 }
 
-#function getFragmentsClustered {
-#    echo -e "\033[1mSubmitting getFragmentsClustered \033[0m"
-#    $QSUB -hold_jid getFragmentsRead${LINE} -N getFragmentsClustered${LINE} $QSUBARGS -l h_vmem=6G "$CMD_DIR/getFragmentsClustered.sh" "${LINE}" "${RE}" "${THRE}"
-#}
-
 function annotateFragment {
     echo -e "\033[1mSubmitting annotateFragment \033[0m"
     $QSUB -hold_jid getPeakFragment${LINE} -N annotateFragment${LINE} $QSUBARGS -l h_vmem=6G "$CMD_DIR/annotateFragment.sh" "${LINE}" "${RE}" "${THRE}"

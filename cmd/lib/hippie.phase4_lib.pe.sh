@@ -1,13 +1,4 @@
 
-
-function findInteraction {
-    echo -e "\033[1mSubmitting findInteraction \033[0m"
-    $QSUB -hold_jid getFragmentsClustered${LINE} -N findInteraction${LINE} $QSUBARGS -l h_vmem=7.5G "$CMD_DIR/findInteraction.sh" "${RE}_fragment_S_reads.bed" "${LINE}"
-}
-function findInteractionNS {
-    echo -e "\033[1mSubmitting findInteraction \033[0m"
-    $QSUB -hold_jid getFragmentsClustered${LINE} -N findInteractionNS${LINE} $QSUBARGS -l h_vmem=7.5G "$CMD_DIR/findInteractionNS.sh" "${RE}_fragment_NS_reads.bed" "${LINE}"
-}
 function findPeakInteraction {
     echo -e "\033[1mSubmitting findPeakInteraction \033[0m"
     $QSUB -hold_jid getPeakFragment${LINE} -N findPeakInteraction${LINE} $QSUBARGS -l h_vmem=7.5G "$CMD_DIR/findPeakInteraction.sh" "${LINE}" "${RE}" "${THRE}"

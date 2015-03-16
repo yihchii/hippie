@@ -1,11 +1,4 @@
 
-function checkst {
-    while [ $NUMJOBS -gt 499 ];do
-        sleep 10m
-        echo "sleeping... Number of jobs: " `qstat | wc -l`
-    done
-}
-
 function checkOutputExist {
     if [ -e $1 ]
     then
@@ -14,13 +7,6 @@ function checkOutputExist {
     fi
 }
 
-function qseqToFastq {
-    echo -e "\033[1mSubmitting qseqToFastq \033[0m"
-    for task in "${tiles[@]}"; do
-        #NUM=$(printf "%04d" $task)
-        $QSUB -N Ftq${RGID}_${task} $QSUBARGS -v QSEQ_DIR,FASTQ_DIR,CMD_DIR "$CMD_DIR/qseqFtq.sh" $task $LINE
-    done
-}
 
 function bwaAln {
     echo -e "\033[1mSubmitting bwaAln\033[0m"
@@ -52,47 +38,6 @@ function bwaAln {
     done
 }
 
-function bwaAlnGzFastq {
-    echo -e "\033[1mSubmitting bwaAlnGzFastq\033[0m"
-    export GATK_THREADS=3 # #cpus *3.5 / Total_memory
-    for task in "${tiles[@]}"; do
-        $QSUB -N Aln${RGID}_${task} \
-              $QSUBARGS -v FASTQ_DIR,SAI_DIR,GATK_THREADS \
-              -pe $PE $GATK_THREADS -l h_vmem=3.4G \
-              "$CMD_DIR/bwaAlnGzFastq.sh" $task $LINE
-    done
-}
-
-function bwaAlnTilesMssm {
-    echo -e "\033[1mSubmitting bwaAlnTilesMssm\033[0m"
-    #export GATK_THREADS=4 # #cpus *3.5 / Total_memory
-    MYCOUNT=1
-    cd $FASTQ_DIR
-    for i in *_1_sequence.txt.gz; do
-        $QSUB -N Aln${RGID}_$MYCOUNT \
-              $QSUBARGS -v FASTQ_DIR,SAI_DIR,GATK_THREADS \
-              -pe $PE $GATK_THREADS -l h_vmem=3.4G \
-              "$CMD_DIR/bwaAlnTilesMssm.sh" $i
-        MYCOUNT=$[ $MYCOUNT + 1 ]
-    done
-    cd -
-}
-
-function bwaAlnOneFastq {
-    echo -e "\033[1mSubmitting bwaAlnOneFastq\033[0m"
-    if [ $DATA_TYPE == "ONEFASTQ" ]
-    then
-        SH="bwaAlnOneFastq"
-    else
-        SH="bwaAlnOneFastqSE"
-    fi
-    export GATK_THREADS=2 # #cpus *3.5 / Total_memory
-        $QSUB -N Aln${RGID} \
-              $QSUBARGS -v FASTQ_DIR,SAI_DIR,GATK_THREADS \
-              -pe $PE $GATK_THREADS -l h_vmem=3.4G \
-              "$CMD_DIR/$SH.sh" "sequence" $LINE
-}
-
 function bwaSamp {
     echo -e "\033[1mSubmitting bwaSamp RG_STR\033[0m:=\e[00;31m $RG_STR \e[00m"
 
@@ -116,33 +61,6 @@ function bwaSamp {
 
 }
 
-function bwaSampOneFastq {
-    echo -e "\033[1mSubmitting bwaSampOneFastq RG_STR\033[0m:=\e[00;31m $RG_STR \e[00m"
-    if [ $DATA_TYPE == "ONEFASTQ" ]
-    then
-        SH="bwaSampOneFastq"
-    else
-        SH="bwaSamSeOneFastq"
-    fi
-        $QSUB -hold_jid Aln${RGID} -N Samp${RGID} \
-              $QSUBARGS -v SAI_DIR,FASTQ_DIR,SAM_DIR -pe $PE 2 -l h_vmem=5G \
-              "$CMD_DIR/$SH.sh" "sequence" $LINE "$RG_STR"
-}
-
-function bwaSampTilesMssm {
-    echo -e "\033[1mSubmitting bwaSampTilesMssm\033[0m"
-    MYCOUNT=1
-
-    cd $FASTQ_DIR
-    for i in *_1_sequence.txt.gz; do
-        PREFIX=$(echo $i|sed 's/.txt.gz//')
-        $QSUB -hold_jid Aln${RGID}_$MYCOUNT -N Samp${RGID}_$MYCOUNT \
-              $QSUBARGS -v SAI_DIR,FASTQ_DIR,SAM_DIR -l h_vmem=5G \
-              "$CMD_DIR/bwaSampTilesMssm.sh" "$RG_STR" $PREFIX
-        MYCOUNT=$[ $MYCOUNT + 1 ]
-    done
-    cd -
-}
 
 function addReadGroupTasks {
     echo -e "\033[1mSubmitting addReadGroupTasks \033[0m"
@@ -188,21 +106,6 @@ function mergeBam {
 	      "$CMD_DIR/mergeBam.sh"  $1
 }
 
-# mergeBamFilter.sh = mergeBam.sh + samtools view -b -F 4
-# function mergeBamFilter {
-#     echo -e "\033[1mSubmitting mergeBamFilter \033[0m"
-# 	$QSUB -N mergeBamFilter${LINE}$1  \
-# 				$QSUBARGS -v SAM_DIR,BAM_DIR -l h_vmem=7G \
-# 	      "$CMD_DIR/mergeBamFilter.sh" $LINE $1
-# }
-
-function mergeIndelRealnBam {
-    echo -e "\033[1mSubmitting mergeIndelRealnBam \033[0m"
-	$QSUB -N mergeIndelRealnBam${LINE}  \
-				$QSUBARGS -v SAM_DIR,BAM_DIR -l h_vmem=7G \
-	      "$CMD_DIR/mergeIndelRealnBam.sh" $LINE
-}
-
 function samtoolsMergeBam {
     echo -e "\033[1mSubmitting samtoolsMergeBam \033[0m"
 	#checkOutputExist s_${LINE}.bam
@@ -227,189 +130,7 @@ function addReadGroup {
 	$QSUB -hold_jid $3 -N addRG${RGID} $QSUBARGS -v RG_STR_PICARD -l h_vmem=50G "$CMD_DIR/addReadGroup.sh" $1 $2
 }
 
-function mgBamSoftLink {
-  echo -e "\033[1mSubmitting mgBamSoftLink $1 \033[0m"
-	$QSUB -hold_jid addRG${RGID} -N mgBam${LINE} $QSUBARGS "$CMD_DIR/mgBamSoftLink.sh" $1 $2
-}
 
-function checkCompleteMerge {
- local __is_too_small=0
-
- if [ -s "s_${LINE}_merged.bam" ] # -s file exists and has fsize > 0
- then
-   FSIZE=$(du -b $BAM_DIR|cut -f1)
-   REDUCTION=90/100
-   MIN_SIZE=$[ $FSIZE * $REDUCTION ]
-   MERGESIZE=$(stat -c%s "s_${LINE}_merged.bam")
-
-   if [ $MERGESIZE -lt $MIN_SIZE ]
-   then 
-     __is_too_small=1
-   fi
-
-   echo $__is_too_small
- else
-   echo 1;#returns true meaning , no data in file
- fi
-}
-
-function checkIncompleteFASTQ {
- local __is_incomplete=0
-
- for task in "${tiles[@]}"; do
-     if [ ! -s "$FASTQ_DIR/s_${LINE}_2_${task}.fastq*" ] # -s file exists and has fsize > 0
-     then
-       __is_incomplete=1
-     fi
- done
- if [ ! -s "$FASTQ_DIR/s_${LINE}_2_sequence.txt*" ] # -s file exists and has fsize > 0
- then
-   __is_incomplete=1
- fi
-
- echo $__is_incomplete
-}
-
-function checkIncompleteSAI {
- local __is_incomplete=0
-
- for task in "${tiles[@]}"; do
-     if [ ! -s "$SAI_DIR/s_${LINE}_2_${task}.sai" ] # -s file exists and has fsize > 0
-     then
-       __is_incomplete=1
-     fi
- done
-
- for task in "${tilesR[@]}"; do
- 		TWOFILE=$(echo $task|sed 's/_R1_/_R2_/')
-     if [ ! -s "$SAI_DIR/${task}.sai" ] || [ ! -s "$SAI_DIR/${TWOFILE}.sai" ] # -s file exists and has fsize > 0
-     then
-       __is_incomplete=1
-     fi
- done
-
- for task in "${tilesSRR[@]}"; do
- 		TWOFILE=$(echo $task|sed 's/_1/_2/')
-     if [ ! -s "$SAI_DIR/${task}.sai" ] || [ ! -s "$SAI_DIR/${TWOFILE}.sai" ] # -s file exists and has fsize > 0
-     then
-       __is_incomplete=1
-     fi
- done
-
-
- echo $__is_incomplete
-}
-
-function checkIncompleteSAM {
- local __is_incomplete=0
-
- for task in "${tiles[@]}"; do
-     if [ ! -s "$SAM_DIR/s_${LINE}_${task}.aligned.sam.gz" ] # -s file exists and has fsize > 0
-     then
-       __is_incomplete=1
-     fi
- done
-
- for task in "${tilesR[@]}"; do
-     if [ ! -s "$SAM_DIR/${task}.aligned.sam.gz" ] # -s file exists and has fsize > 0
-     then
-       __is_incomplete=1
-     fi
- done
-
- for task in "${tilesSRR[@]}"; do
-     if [ ! -s "$SAM_DIR/${task}.aligned.sam.gz" ] # -s file exists and has fsize > 0
-     then
-       __is_incomplete=1
-     fi
- done
-
- echo $__is_incomplete
-}
-function checkIncompleteBAM {
- local __is_incomplete=0
-
- for task in "${tiles[@]}"; do
-     if [ ! -s "$BAM_DIR/s_${LINE}_${task}_rg.bam" ] # -s file exists and has fsize > 0
-     then
-       __is_incomplete=1
-     fi
- done
-
- for task in "${tilesR[@]}"; do
-     if [ ! -s "$BAM_DIR/${task}_rg.bam" ] # -s file exists and has fsize > 0
-     then
-       __is_incomplete=1
-     fi
- done
-
- for task in "${tilesSRR[@]}"; do
-     if [ ! -s "$BAM_DIR/${task}_rg.bam" ] # -s file exists and has fsize > 0
-     then
-       __is_incomplete=1
-     fi
- done
- echo $__is_incomplete
-}
-
-function checkSamp {
-    echo -e "\033[1mSubmitting checkSamp\033[0m"
-    for task in "${tiles[@]}"; do
-        $QSUB -N checkSamp${RGID}_${task} \
-              $QSUBARGS -v SAI_DIR,FASTQ_DIR,SAM_DIR -l h_vmem=1G \
-              "$CMD_DIR/checkSamp.sh" $task $LINE
-    done
-}
-
-###############
-# adjustWorkingMem - calculate the per-thread memory for a parallel qsub job
-# inputs: TARGET - The total memory required by the job
-#         THREADS - Number of slots used by the job
-function adjustWorkingMem {
-
-local TARGET=$1
-local THREADS=$2
-local MEM_REQ=1M
-
-# test empty result
-if [ ! -z $(echo $TARGET|grep -o G) ]
- then
-   # contains G (Gigabytes)
-   MBTARGET=$(echo $TARGET|grep -Po "\d+")
-
-   # Convert to MB
-   MBTARGET=$[ $MBTARGET * 1024 ]
-   #echo "New target:= $MBTARGET"
-
-   MEM_REQ=$[ $MBTARGET / $THREADS ]
-
-   if [ $MEM_REQ -eq 0 ];then
-     MEM_REQ=1M
-   else
-     MEM_REQ=${MEM_REQ}M
-   fi
-
-   echo "$MEM_REQ"
-
-elif [ ! -z $(echo $TARGET|grep -o M) ]
- then
-   # contains M (Megabytes)
-   MBTARGET=$(echo $TARGET|grep -Po "\d+")
-
-   MEM_REQ=$[ $MBTARGET / $GATK_THREADS ]
-
-   if [ $MEM_REQ -eq 0 ];then
-     MEM_REQ=1M
-   else
-     MEM_REQ=${MEM_REQ}M
-   fi
-
-   echo "$MEM_REQ"
-
-fi
-}
-#####
-#
 #
 ####
 function hippie_test_variables {

@@ -16,7 +16,7 @@ echo "[`date`] annotating the hotspots"
 
 awk -F'\t' '{print > $1"_eHotspots.bed"}' ${FILE}
 
-for i in chr*_eHotspots.bed; do bedtools annotate -i "${i}" -files "${GENOME_PATH}/refGene_promoter_merged.bed" "${GENOME_PATH}/refGene_merged.bed" "${GENOME_PATH}/refGene_exon_merged.bed" "${GENOME_PATH}/refGene_intron_merged.bed" "${GENOME_PATH}/miRNA_merged.bed" "${GENOME_PATH}/vegaPseudoGene_merged.bed" "${GENOME_PATH}/RNA_repeats_rmsk_merged.bed" "${GENOME_PATH}/TE_rmsk_merged.bed" "${GENOME_PATH}/TR_rmsk_merged.bed" "${GENOME_PATH}/intergenic.bed" > "${i%%.*}_annotated.bed";done;
+for i in chr*_eHotspots.bed; do ${BEDTOOLS} annotate -i "${i}" -files "${GENOME_PATH}/refGene_promoter_merged.bed" "${GENOME_PATH}/refGene_merged.bed" "${GENOME_PATH}/refGene_exon_merged.bed" "${GENOME_PATH}/refGene_intron_merged.bed" "${GENOME_PATH}/miRNA_merged.bed" "${GENOME_PATH}/vegaPseudoGene_merged.bed" "${GENOME_PATH}/RNA_repeats_rmsk_merged.bed" "${GENOME_PATH}/TE_rmsk_merged.bed" "${GENOME_PATH}/TR_rmsk_merged.bed" "${GENOME_PATH}/intergenic.bed" > "${i%%.*}_annotated.bed";done;
 
 sort -T $TMPDIR -k 1,1 -k 2,2n  chr*_eHotspots_annotated.bed > "${LINE}_eHotspots_annotated.bed"
 

@@ -17,7 +17,7 @@ echo "[`date`] extending the hotspots"
 "${ETSCRIPT}/extend_hotspot_to_median.pl" "${REMEDIAN}"  "${LINE}_hotspots.bed" $GENOME_LEN "${LINE}_eHotspots_temp.bed"
 
 echo "[`date`] merging the extended hotspots"
-bedtools merge -i "${LINE}_eHotspots_temp.bed" -nms -scores sum > "${LINE}_eHotspots.bed"
+${BEDTOOLS} merge -i "${LINE}_eHotspots_temp.bed" -c4,5 -o collapse,sum > "${LINE}_eHotspots.bed"
 
 EXITSTATUS=$?
 

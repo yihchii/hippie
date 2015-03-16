@@ -34,13 +34,10 @@ USER=$LOGNAME
 export CMD_DIR=$CMD_HIPPIE
 export REF_FASTA=$GENOME_REF
 
-export QSEQ_DIR=
 export FASTQ_DIR=
 export SAI_DIR=
 export SAM_DIR=
 export BAM_DIR=
-export STAT_DIR=stat
-export VCF_DIR=vcf
 #
 # User Configuration
 
@@ -69,14 +66,9 @@ export RE=
 export mbq=
 export mmq=
 
-if [ $DATA_TYPE == "TILESQSEQ" ]; then
- tiles=($(ls $QSEQ_DIR/*.txt*|sed -n 's/.*s_[0-9]\+_1_\([0-9]\+\).*/\1/p')) # this extracts 0001, 0002 .. XXXX from s_N_1_XXXX
-
-elif [ $DATA_TYPE == "TILESFASTQ" ]; then
- tiles=($(ls $FASTQ_DIR/*.fastq*|sed -n 's/.*s_[0-9]\+_1_\([0-9]\+\).*/\1/p')) # this extracts 0001, 0002 .. XXXX from s_N_1_XXXX
- tilesR=($(ls $FASTQ_DIR/*.fastq*|grep -Po '[^/]+R1_[^\.]+')) # this extracts a different format
- tilesSRR=($(ls $FASTQ_DIR/*.fastq*|sed -n 's/.*\(SRR[0-9]\+_1\).*/\1/p')) # this extracts a different format
-fi
+tiles=($(ls $FASTQ_DIR/*.fastq*|sed -n 's/.*s_[0-9]\+_1_\([0-9]\+\).*/\1/p')) # this extracts 0001, 0002 .. XXXX from s_N_1_XXXX
+tilesR=($(ls $FASTQ_DIR/*.fastq*|grep -Po '[^/]+R1_[^\.]+')) # this extracts a different format
+tilesSRR=($(ls $FASTQ_DIR/*.fastq*|sed -n 's/.*\(SRR[0-9]\+_1\).*/\1/p')) # this extracts a different format
 
 #
 # QSUB
@@ -84,7 +76,7 @@ QSUB="qsub"
 [[ $DODEBUG ]] && QSUB="echo qsub"
 
 NUMJOBS=`qstat -u $USER|grep -c $USER`
-export QSUBARGS="-S /bin/bash -q $GRID_QUEUE -cwd -v HIPPIE_INI,HIPPIE_CFG,REF_FASTA,SNPDB -j y -o $STDOUT -hard -l h_stack=256m,h_vmem=1G"
+export QSUBARGS="-S /bin/bash -q $GRID_QUEUE -cwd -v HIPPIE_INI,HIPPIE_CFG,REF_FASTA -j y -o $STDOUT -hard -l h_stack=256m,h_vmem=1G"
 
 #
 # function libraries
@@ -108,32 +100,10 @@ fi
 
 if [[ $DOPHASE1 ]]; then
   echo "Phase 1"
-  
-  if [ $DATA_TYPE == "BAM" ]; then
-		echo "Merging the following bam files"
-		ls $BAM_DIR
-		samtoolsMergeBam
-  	
-  elif [[ $DATA_TYPE == "ONEFASTQ" || $DATA_TYPE == "ONEFASTQSE" ]]; then
-  	bwaAlnOneFastq
-  	bwaSampOneFastq 
-		addReadGroup $SAM_DIR/s_${LINE}_sequence.aligned.sam.gz $BAM_DIR/s_${LINE} Samp${RGID}
-		mgBamSoftLink $BAM_DIR/s_${LINE}_rg.bam s_${LINE}_merged.bam 
-		
-  else
-		if [ $DATA_TYPE == "TILESQSEQ" ]; then
-			[ $(checkIncompleteFASTQ) == 1 ] && qseqToFastq
-		fi
-	
-		[ $(checkIncompleteSAI) == 1 ]   && bwaAln      
-		[ $(checkIncompleteSAM) == 1 ]   && bwaSamp      
-	
-		[ $(checkIncompleteBAM) == 1 ]   && addReadGroupTasks
-		samtoolsMergeBam
-
-		
-	fi
-		
+	bwaAln
+	bwaSamp
+	addReadGroupTasks
+	samtoolsMergeBam 
 fi
 
 ###################### EOF PHASE 1 #########################
@@ -144,14 +114,12 @@ fi
 ############################################################
 #                                                          #
 # PHASE 2 - Quality Control                                #
-if [ $DATA_TYPE != "ONEFASTQ" ] && [[ $DOPHASE2 ]]; then
-  echo "Phase 2"
-
- doFlagStat "s_${LINE}_merged" 
-# sortBamQueryName "s_${LINE}_merged"
- bam2Bed 
- rmdupBed 
- rmBadMapped
+if [[ $DOPHASE2 ]]; then
+	echo "Phase 2"
+	doFlagStat "s_${LINE}_merged" 
+	bam2Bed 
+	rmdupBed 
+	rmBadMapped
 fi
 
 ###################### EOF PHASE 2 #########################
@@ -161,9 +129,9 @@ fi
 # PHASE 3 - find peak RE fragments                         #
 if [[ $DOPHASE3 ]]; then
  echo "Phase 3 - Find Peak RE fragments"
- getDistancetoRSLeft # comment out so that it wouldn't re-run and ruin the data
+ getDistancetoRSLeft 
  getDistancetoRSRight
- getDistancePairBed # comment out so that it wouldn't re-run and ruin the data
+ getDistancePairBed 
  consecutiveReadsS
  consecutiveReadsNS
  getFragmentsRead

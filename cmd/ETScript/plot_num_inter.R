@@ -1,4 +1,3 @@
-library(RColorBrewer)
 
 cmd_args = commandArgs();
 input <- cmd_args[4];
