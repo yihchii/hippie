@@ -3,7 +3,6 @@
 # Comments: yihhwang@mail.med.upenn.edu, chiaolin@mail.med.upenn.edu, OttoV@upenn.edu
 #######################################################################################################
 
-#
 # get command line parameters
 while getopts h:f:i:mbp:t: option
 do
@@ -11,12 +10,6 @@ do
             h) HIPPIE_HOME_DIR="$OPTARG";;  # option -h path to hippie_home
             f) CONFIG="$OPTARG";;         # option -f path to config file
             i) HIPPIE_INI="$OPTARG";;               # option -i specify INI file
-            p)                            # -p 1/2/3 to execute a particular phase, e.g.: -p1 -p2 -p3
-              case "$OPTARG" in
-                1) DOPHASE1=true;;
-                2) DOPHASE2=true;;
-                3) DOPHASE3=true;;
-              esac;;
         esac
 done
 
@@ -156,24 +149,6 @@ for dir in  ${DATASET[@]};do
   fi
 
   # Perform command line run of phase based on "-pN" argument flag
-  if [[ $DOPHASE1 ]]; then
-    echo "Running Phase 1"
-    echo "sh $NEW_LAUNCHER -p1"
-    sh $NEW_LAUNCHER -p1
-  fi
-
-  if [[ $DOPHASE2 ]]; then
-    echo "Running Phase 2"
-    echo "sh $NEW_LAUNCHER -p2"
-    sh $NEW_LAUNCHER -p2
-  fi
-
-  if [[ $DOPHASE3 ]]; then
-    echo "Running Phase 3"
-    echo "sh $NEW_LAUNCHER -p3"
-    sh $NEW_LAUNCHER -p3
-  fi
-
   count=$[ $count + 1 ]
 done # Loop Datasets
 
