@@ -12,8 +12,7 @@ export OUT="${LINE}_${THRE}_GWAS_enrichment.txt"
 echo -e "cond\tGWAS" > ${OUT} 
 
 # intersect CEE
-#bedtools intersect -a ${LINE}_${THRE}_CEE_sig.bed -b ${GENOME_PATH}/snp137Flagged.bed.gz -wa > ${LINE}_${THRE}_CEE_sig_GWAS.bed
-$BEDTOOLS intersect -a ${LINE}_${THRE}_CEE_sig.bed -b ${GENOME_PATH}/gwascatalog_20131111.bed -wa > ${LINE}_${THRE}_CEE_sig_GWAS.bed
+${BEDTOOLS} intersect -a ${LINE}_${THRE}_CEE_sig.bed -b ${GENOME_PATH}/gwascatalog_20131111.bed -wa > ${LINE}_${THRE}_CEE_sig_GWAS.bed
 
 
 # intersect Hi-C interactor with the encode marks
@@ -34,10 +33,8 @@ $BEDTOOLS intersect -a ${LINE}_${THRE}_CEE_sig.bed -b ${GENOME_PATH}/gwascatalog
 
 
 cat ${LINE}_${THRE}_sig_interactor_ENCODE.bed | awk 'BEGIN{OFS="\t"}{if (($4+$5+$6+$7>0&&$9>0))print $1,$2,$3}' |sort -u> ${LINE}_${THRE}_notPARTNER_sig.bed
-#bedtools intersect -a ${LINE}_${THRE}_notPARTNER_sig.bed -b ${GENOME_PATH}/snp137Flagged.bed.gz -wa > ${LINE}_${THRE}_notCEEPartner_GWAS.bed
-#bedtools intersect -a ${LINE}_${THRE}_interactor_sorted.bed -b ${GENOME_PATH}/snp137Flagged.bed.gz -wa > ${LINE}_${THRE}_interactor_GWAS.bed
-bedtools intersect -a ${LINE}_${THRE}_notPARTNER_sig.bed -b ${GENOME_PATH}/gwascatalog_20131111.bed -wa > ${LINE}_${THRE}_notCEEPartner_GWAS.bed
-bedtools intersect -a ${LINE}_${THRE}_interactor_sorted.bed -b ${GENOME_PATH}/gwascatalog_20131111.bed -wa > ${LINE}_${THRE}_interactor_GWAS.bed
+${BEDTOOLS} intersect -a ${LINE}_${THRE}_notPARTNER_sig.bed -b ${GENOME_PATH}/gwascatalog_20131111.bed -wa > ${LINE}_${THRE}_notCEEPartner_GWAS.bed
+${BEDTOOLS} intersect -a ${LINE}_${THRE}_interactor_sorted.bed -b ${GENOME_PATH}/gwascatalog_20131111.bed -wa > ${LINE}_${THRE}_interactor_GWAS.bed
 
 CEE=$(wc ${LINE}_${THRE}_CEE_sig.bed|awk '{print $3}')
 CEEGWAS=$(wc ${LINE}_${THRE}_CEE_sig_GWAS.bed| awk '{print $3}')
