@@ -6,8 +6,9 @@ source $HIPPIE_CFG
 
 LINE=$1
 THRE=$2
-FILE="${LINE}_${THRE}_CEE_gene_sig.bed"
-OUT="${LINE}_${THRE}_target.txt"
+OUT_DIR=$3
+FILE="${OUT_DIR}/${LINE}_${THRE}_CEE_gene_sig.bed"
+OUT="${OUT_DIR}/${LINE}_${THRE}_target.txt"
 
 if [ !  -s "${FILE}" ]
 then
