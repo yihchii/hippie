@@ -2,14 +2,14 @@
 source $HIPPIE_INI
 source $HIPPIE_CFG
 
-LINE=$1
-RE=$2
-FILE=s_${LINE}.bed
+RE=$1
+BED_DIR=$2
+FILE=$3
 
 
-if [ !  -s "${FILE}" ]
+if [ !  -s "${BED_DIR}/${FILE}.bed" ]
 then
- echo "Cannot find input file $FILE!"
+ echo "Cannot find input file ${BED_DIR}/$FILE.bed!"
  exit 100
 fi
 
@@ -21,20 +21,21 @@ fi
 
 
 
-cut -f1-3,7-9 s_${LINE}.bed > s_${LINE}_left.bed
+cut -f1-4,9 ${BED_DIR}/${FILE}.bed > ${BED_DIR}/${FILE}_left.bed
 
-$BEDTOOLS closest -d -t first -a s_${LINE}_left.bed -b \
-${GENOME_CHRM}/${RE}_site.bed|cut -f10 >s_${LINE}_left_distToRE.txt
+$BEDTOOLS closest -d -t first -a ${BED_DIR}/${FILE}_left.bed -b \
+${GENOME_CHRM}/${RE}_site.bed|cut -f9 > ${BED_DIR}/${FILE}_left_distToRE.txt
 
 
 
 EXITSTATUS=$?
 
-if [ !  -s "s_${LINE}_left_distToRE.txt" ]
+if [ !  -s "${BED_DIR}/${FILE}_left_distToRE.txt" ]
 then
  echo "Incorrect Output!"
  exit 100
 fi
 
 exit $EXITSTATUS
+
 
