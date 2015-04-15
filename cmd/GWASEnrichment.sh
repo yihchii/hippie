@@ -4,16 +4,16 @@ source $HIPPIE_CFG
 
 LINE=$1
 THRE=$2
+OUT_DIR=$3
 
 # 2014/09/21 update: using threshould of p-value estimated by NB distribution
-
-export OUT="${LINE}_${THRE}_GWAS_enrichment.txt"
+export OUT="${OUT_DIR}/${LINE}_${THRE}_GWAS_enrichment.txt"
 
 echo -e "cond\tGWAS" > ${OUT} 
 
 # intersect CEE
 #bedtools intersect -a ${LINE}_${THRE}_CEE_sig.bed -b ${GENOME_PATH}/snp137Flagged.bed.gz -wa > ${LINE}_${THRE}_CEE_sig_GWAS.bed
-$BEDTOOLS intersect -a ${LINE}_${THRE}_CEE_sig.bed -b ${GENOME_PATH}/gwascatalog_20131111.bed -wa > ${LINE}_${THRE}_CEE_sig_GWAS.bed
+$BEDTOOLS intersect -a ${OUT_DIR}/${LINE}_${THRE}_CEE_sig.bed -b ${GENOME_PATH}/gwascatalog_20131111.bed -wa > ${OUT_DIR}/${LINE}_${THRE}_CEE_sig_GWAS.bed
 
 
 # intersect Hi-C interactor with the encode marks
@@ -33,18 +33,16 @@ $BEDTOOLS intersect -a ${LINE}_${THRE}_CEE_sig.bed -b ${GENOME_PATH}/gwascatalog
 # 11. Ctcf
 
 
-cat ${LINE}_${THRE}_sig_interactor_ENCODE.bed | awk 'BEGIN{OFS="\t"}{if (($4+$5+$6+$7>0&&$9>0))print $1,$2,$3}' |sort -u> ${LINE}_${THRE}_notPARTNER_sig.bed
-#bedtools intersect -a ${LINE}_${THRE}_notPARTNER_sig.bed -b ${GENOME_PATH}/snp137Flagged.bed.gz -wa > ${LINE}_${THRE}_notCEEPartner_GWAS.bed
-#bedtools intersect -a ${LINE}_${THRE}_interactor_sorted.bed -b ${GENOME_PATH}/snp137Flagged.bed.gz -wa > ${LINE}_${THRE}_interactor_GWAS.bed
-bedtools intersect -a ${LINE}_${THRE}_notPARTNER_sig.bed -b ${GENOME_PATH}/gwascatalog_20131111.bed -wa > ${LINE}_${THRE}_notCEEPartner_GWAS.bed
-bedtools intersect -a ${LINE}_${THRE}_interactor_sorted.bed -b ${GENOME_PATH}/gwascatalog_20131111.bed -wa > ${LINE}_${THRE}_interactor_GWAS.bed
+cat ${OUT_DIR}/${LINE}_${THRE}_sig_interactor_ENCODE.bed | awk 'BEGIN{OFS="\t"}{if (($4+$5+$6+$7>0&&$9>0))print $1,$2,$3}' |sort -u> ${OUT_DIR}/${LINE}_${THRE}_notPARTNER_sig.bed
+${BEDTOOLS} intersect -a ${OUT_DIR}/${LINE}_${THRE}_notPARTNER_sig.bed -b ${GENOME_PATH}/gwascatalog_20131111.bed -wa > ${OUT_DIR}/${LINE}_${THRE}_notCEEPartner_GWAS.bed
+${BEDTOOLS} intersect -a ${OUT_DIR}/${LINE}_${THRE}_interactor_sorted.bed -b ${GENOME_PATH}/gwascatalog_20131111.bed -wa > ${OUT_DIR}/${LINE}_${THRE}_interactor_GWAS.bed
 
-CEE=$(wc ${LINE}_${THRE}_CEE_sig.bed|awk '{print $3}')
-CEEGWAS=$(wc ${LINE}_${THRE}_CEE_sig_GWAS.bed| awk '{print $3}')
-NOTPARTNER=$(wc ${LINE}_${THRE}_notPARTNER_sig.bed| awk '{print $3}')
-NOTPARTNERGWAS=$(wc ${LINE}_${THRE}_notCEEPartner_GWAS.bed| awk '{print $3}')
-INTERACTOR=$(wc ${LINE}_${THRE}_interactor_sorted.bed| awk '{print $3}')
-INTERACTORGWAS=$(wc ${LINE}_${THRE}_interactor_GWAS.bed| awk '{print $3}')
+CEE=$(wc ${OUT_DIR}/${LINE}_${THRE}_CEE_sig.bed|awk '{print $3}')
+CEEGWAS=$(wc ${OUT_DIR}/${LINE}_${THRE}_CEE_sig_GWAS.bed| awk '{print $3}')
+NOTPARTNER=$(wc ${OUT_DIR}/${LINE}_${THRE}_notPARTNER_sig.bed| awk '{print $3}')
+NOTPARTNERGWAS=$(wc ${OUT_DIR}/${LINE}_${THRE}_notCEEPartner_GWAS.bed| awk '{print $3}')
+INTERACTOR=$(wc ${OUT_DIR}/${LINE}_${THRE}_interactor_sorted.bed| awk '{print $3}')
+INTERACTORGWAS=$(wc ${OUT_DIR}/${LINE}_${THRE}_interactor_GWAS.bed| awk '{print $3}')
 
 echo -e "CEE\t${CEE}" >> ${OUT}
 echo -e "CEE_GWAS\t${CEEGWAS}" >> ${OUT}
@@ -61,6 +59,7 @@ echo -e "FOLD\t${FOLD}" >> ${OUT}
 
 
 
+EXITSTATUS=$?
 
 if [ ! -s $OUT ]
 then
