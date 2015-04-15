@@ -1,8 +1,7 @@
 #!/bin/bash
 source $HIPPIE_INI
 source $HIPPIE_CFG
-# test
-#./README_HOTSPOT.sh ./original_data/GSM455133_30E0LAAXX.1.maq.hic.summary.binned.txt PBALL
+
 FILE=$1
 LINE=$2
 
@@ -35,12 +34,5 @@ then
 fi
 
 exit $EXITSTATUS
-
-#echo "geometric test for hotspot"
-#R --no-save --args "${LINE}_gap_filtered_cluster.txt" "${LINE}_lower.clusterlength.txt" "${LINE}_upper.clusterlength.txt" "${LINE}_hotspot.txt" < cluster_geometric_distribution_analysis.R 
-#1_cl44  1 17450 18061 612 3 9
-
-#echo "return chromosome number as chromosome id"
-#tail -n+2 "${LINE}_hotspot.txt" | awk 'BEGIN{FS= "\t"; printf("clusterID\tchrm\tcStart\tcEnd\tcLength\tregionNum\treads\n")}{if ($2 == 23) printf ("%s\tchrx\t%s\t%s\t%s\t%s\t%s\n",$1,$3,$4,$5,$6,$7);else if ($2 == 24) printf ("%s\tchry\t%s\t%s\t%s\t%s\t%s\n",$1,$3,$4,$5,$6,$7);else printf("%s\tchr%s\t%s\t%s\t%s\t%s\t%s\n",$1,$2,$3,$4,$5,$6,$7);}' > "${LINE}_hotspot_chrm.txt"
 
 
