@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
 use POSIX; 
-my $usage = "Usage: perl $0 perlMath_path frag_i interaction_i gc_binned_o len_binned_o frag_inter_o";
+my $usage = "Usage: perl $0 frag_i interaction_i gc_binned_o len_binned_o frag_inter_o";
 
 use Math::CDF qw(:all);
 
@@ -41,7 +41,6 @@ my %lenbin_sum;
 my %lenbin_count;
 my $gc_all_sum;
 my $gc_all_count;
-#my %inter_h;
 print "Reading $inter_i and updating estimations of L_{i,j} and F^{gc}_{ij}... \n";
 while (my $line = <INTER_I>){
 	chomp $line;
@@ -67,7 +66,6 @@ while (my $line = <INTER_I>){
 	$lenbin_sum{"$cat_len_s,$cat_len_L"}+=$read/($mapp_h{$frag1}*$mapp_h{$frag2});
 	$lenbin_count{"$cat_len_s,$cat_len_L"}+=1;
 
-#	$inter_h{$frag1."\t".$frag2} = "$cat_gc_s,$cat_gc_b"."\t"."$cat_len_s,$cat_len_L"."\t".join ("\t", $read,$gc_h{$frag1},$gc_h{$frag2},$mapp_h{$frag1},$mapp_h{$frag2},$rf1,$rf2) ;
 	} # if mapp > 0.2
 }
 close(INTER_I);
