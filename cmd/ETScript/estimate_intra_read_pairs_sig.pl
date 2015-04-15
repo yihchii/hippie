@@ -2,11 +2,11 @@
 use strict;
 use POSIX; 
 
-my $usage = "Usage: perl $0 perlMath_path frag_i interaction[s] gc_binned_o len_binned_o";
+my $usage = "Usage: perl $0 frag_i interaction[s] gc_binned_o len_binned_o beddir";
 
 use Math::CDF qw(:all);
 
-
+my $bed_path=pop||die $usage;
 my $gc_binned_o = pop||die $usage;
 my $len_binned_o = pop || die $usage;
 my $frag_i = shift || die $usage;
@@ -53,7 +53,6 @@ foreach my $chr_file (@inter_in_files) {
 		my $distance = $start2-$end1;
 
 		if (exists($mapp_h{$frag1})&& exists($mapp_h{$frag2})&& $mapp_h{$frag1}>0.2&& $mapp_h{$frag2}>0.2&& $distance>500){
-
 			## GC content binning
 			my $cat_gc_1 = ceil($gc_h{$frag1}/0.05);
 			my $cat_gc_2 = ceil($gc_h{$frag2}/0.05);
@@ -107,9 +106,11 @@ my $prob = 1 - 1/2.057;
 foreach my $chr_file (@inter_in_files) {
 	print STDERR "Writing out statistical value for interactions of $chr_file... \n";
 	open (INTER_I, $chr_file)||die "Cannot open $chr_file!";
-	my @temp = split (/\_/, $chr_file);
-	my $chr = $temp[0];
-	open (FRAG_INTER_O, ">$chr"."_95_reads_interaction_pvalue.txt")||die "Cannot open file ".$chr."_inter.txt!";
+	$chr_file =~ m/.*(chr\w+)_.*_.*_.*\.txt/;
+	my $chr = $1;
+	my $outInter = $bed_path."/".$chr."_95_reads_interaction_pvalue.txt";
+	print $outInter."\n";
+	open (FRAG_INTER_O, ">$outInter")||die "Cannot open file $outInter!";
   
 	while (my $line = <INTER_I>){
 		chomp $line;
@@ -118,7 +119,6 @@ foreach my $chr_file (@inter_in_files) {
    	my ($chr2, $start2, $end2) = split(/:|-/,$frag2);
    	my $distance = $start2-$end1;
    	if (exists($mapp_h{$frag1})&& exists($mapp_h{$frag2})&& $mapp_h{$frag1}>0.2&& $mapp_h{$frag2}>0.2&& $distance>500){
-
     	## GC content binning
     	my $cat_gc_1 = ceil($gc_h{$frag1}/0.05);
     	my $cat_gc_2 = ceil($gc_h{$frag2}/0.05);
@@ -134,7 +134,7 @@ foreach my $chr_file (@inter_in_files) {
 
 			my $u = $f_value{$gc_key} * $mapp_h{$frag1} * $mapp_h{$frag2} * $L_value{$len_key};
 			my $p = 1 - pnbinom($read,$u,$prob);
-			print FRAG_INTER_O join ("\t", ($frag1, $frag2, $p, $read, $rf1,$rf2))."\n";
+			print FRAG_INTER_O join ("\t", ($frag1, $frag2,$p, $read, $rf1,$rf2))."\n";
 		} # if mappability
 	}# while in the line of the file
 	close(FRAG_INTER_O);
