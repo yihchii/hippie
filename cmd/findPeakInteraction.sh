@@ -2,11 +2,12 @@
 source $HIPPIE_INI
 source $HIPPIE_CFG
 
-LINE=$1
-RE=$2
-THRE=$3
+BED_DIR=$1
+LINE=$2
+RE=$3
+THRE=$4
 
-FILE="${LINE}_${RE}fragment_S_reads_${THRE}.bed"
+FILE="${BED_DIR}/${LINE}_${RE}fragment_S_reads_${THRE}.bed"
 
 if [ !  -s "${FILE}" ]
 then
@@ -16,27 +17,30 @@ fi
 
 # split peak fragment files into chromosomal level
 echo "[`date`] start finding intra-chromosomal interaction"
-awk -v thre=${THRE} -F'\t' 'BEGIN{OFS="\t"}{print $1,$2,$3,$4,$5> $1"_"thre"_reads.bed"}' ${FILE}
-
-# array of the peak fragment files (in chromosomes)
-foo=( chr[[:digit:]]_${THRE}_reads.bed chr[[:digit:]][[:digit:]]_${THRE}_reads.bed chrX_${THRE}_reads.bed chrY_${THRE}_reads.bed)
+awk -v thre=${THRE} -v beddir=${BED_DIR} -F'\t' 'BEGIN{OFS="\t"}{print $1,$2,$3,$4,$5 > beddir"/"$1"_"thre"_reads.bed"}' ${FILE}
 
 # for each chromosome, find interactions
-for i in "${!foo[@]}"; do 
-	filename="${foo[$i]%.*}" 
-	"${ETSCRIPT}/interaction.pl" "${foo[$i]}" "${filename}_interaction.txt"
+for i in ${BED_DIR}/*_${THRE}_reads.bed; do
+	FILE="${i}"
+	FILEpref=${FILE%.*}
+	if [ -s "${FILE}" ]
+	then
+	"${ETSCRIPT}/interaction.pl" "${FILE}" "${FILEpref}_interaction.txt"
+	fi
 done;
 
-
 echo "[`date`] start finding inter-chromosomal interaction"
-rm "${LINE}_interChrm_${THRE}_reads_interaction.txt"
-a=${#foo[@]}
+rm "${BED_DIR}/${LINE}_interChrm_${THRE}_reads_interaction.txt"
+
+files=($(ls ${BED_DIR}/*_${THRE}_reads.bed))
+a=${#files[@]}
 lastIndex=`expr $a - 1`
+
 for ((i=$lastIndex; i> 0;i--)); do 
 	lastIndexy=`expr $i - 1`
 	for (( j=$lastIndexy; j >= 0 ; j--)); do
-		echo "[`date`] finding inter-chromosomal restriction fragment interactions between ${foo[$i]} and ${foo[$j]}"
-		"${ETSCRIPT}/interaction_interChrm.pl" "${foo[$i]}" "${foo[$j]}" "${LINE}_interChrm_${THRE}_reads_interaction.txt"
+		echo "[`date`] finding inter-chromosomal restriction fragment interactions between ${files[$i]} and ${files[$j]}"
+		"${ETSCRIPT}/interaction_interChrm.pl" "${files[$i]}" "${files[$j]}" "${BED_DIR}/${LINE}_interChrm_${THRE}_reads_interaction.txt"
 	done
 done
 
@@ -46,7 +50,7 @@ echo "[`date`] find peak fragment interactions completed"
 
 EXITSTATUS=$?
 
-if [ !  -s "${LINE}_interChrm_${THRE}_reads_interaction.txt" ]
+if [ !  -s "${BED_DIR}/${LINE}_interChrm_${THRE}_reads_interaction.txt" ]
 then
  echo "Incorrect Output!"
  exit 100
