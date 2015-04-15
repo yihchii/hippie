@@ -6,6 +6,7 @@ distance_closest_file <- cmd_args[6];
 # "hESC_95_CEE_strong_closestGene_dist.txt"
 distance_HiC_file <- cmd_args[7]; 
 # "hESC_95_CEE_gene_strong_dist.txt"
+output_dir <- cmd_args[8]; 
 
 distance_closest <- read.table(distance_closest_file,header=FALSE)
 distance_HiC <- read.table(distance_HiC_file,header=FALSE)
@@ -18,7 +19,7 @@ distance_HiC <- (distance_HiC +1)/1000; # adjust for log transform
 
 df <- data.frame(values = c(distance_closest, distance_HiC), vars=rep(c("col1","col2"),times=c(length(distance_closest),length(distance_HiC))))
 
-filename <- paste(cell,thre,"ET_distance.jpg",sep="_")
+filename <- paste(output_dir,"/",cell,"_",thre,"_ET_distance.jpg",sep="")
 #filename <- "hESC_ET_distance_human.jpg";
 jpeg(filename, 1536, 1536, quality = 95);
 par(cex=2,cex.lab = 2,cex.main=3, cex.axis=2,cex.sub=2, lwd = 4, mar=c(5,9,2,2)+0.1)
