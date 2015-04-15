@@ -2,12 +2,13 @@
 source $HIPPIE_INI
 source $HIPPIE_CFG
 
-FILE=$1
-LINE=$2
+BED_DIR=$1
+FILE=$2
+LINE=$3
 
-if [ !  -s "${FILE}" ]
+if [ !  -s "${BED_DIR}/${FILE}" ]
 then
- echo "Cannot find input file $FILE!"
+ echo "Cannot find input file ${BED_DIR}/$FILE!"
  exit 100
 fi
 
@@ -15,21 +16,21 @@ fi
 ## generate concated paired-end reads (to single end format)
 ## consecutive reads are generated, but not used for restriction-fragment-based analysis
 
-echo "[`date`] Concating the file of ${LINE}......"
+echo "[`date`] Concating the file of ${BED_DIR}/${LINE}......"
 
-cut -f1-3,7 $FILE > "${LINE}_concat_m500.txt"
-cut -f4-7 $FILE >> "${LINE}_concat_m500.txt"
+cut -f1-3,9 ${BED_DIR}/$FILE > "${BED_DIR}/${LINE}_concat_S.txt"
+cut -f5-7,9 ${BED_DIR}/$FILE >> "${BED_DIR}/${LINE}_concat_S.txt"
 
 echo "[`date`] Generating sorted bed file"
-sort -T $TMPDIR -k 1,1 -k 2,2n "${LINE}_concat_m500.txt" > "${LINE}_concat_m500.bed"
-rm "${LINE}_concat_m500.txt"
+sort -T $TMPDIR -k 1,1 -k 2,2n "${BED_DIR}/${LINE}_concat_S.txt" > "${BED_DIR}/${LINE}_concat_S.bed"
+rm "${BED_DIR}/${LINE}_concat_S.txt"
 
-echo "[`date`] Getting consecutive file of ${LINE}"
-$BEDTOOLS merge -i "${LINE}_concat_m500.bed" -c 4 -o collapse,count > "${LINE}_consecutive_m500.bed"
+echo "[`date`] Getting consecutive file of ${BED_DIR}/${LINE}"
+$BEDTOOLS merge -i "${BED_DIR}/${LINE}_concat_S.bed" -c 4 -o collapse,count > "${BED_DIR}/${LINE}_consecutive_S.bed"
 
 EXITSTATUS=$?
 
-if [ !  -s "${LINE}_consecutive_m500.bed" ]
+if [ !  -s "${BED_DIR}/${LINE}_consecutive_S.bed" ]
 then
  echo "Incorrect Output!"
  exit 100
