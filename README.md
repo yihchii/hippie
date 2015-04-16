@@ -5,7 +5,7 @@
 
 
 
-* HIPPIE is the workflow for analyzing batches of Hi-C paired-end reads in FASTQ format and predict enhancer&ndash;target gene interactions. HIPPIE streamlines the entire processing phase including reads mapping, quality control and enhancer–target gene prediction as well as characterizing the interactions.
+* HIPPIE is the workflow for analyzing batches of Hi-C paired-end reads in FASTQ format and predict enhancer&ndash;target gene interactions. HIPPIE streamlines the entire processing phase including reads mapping, quality control and enhancer&ndash;target gene prediction as well as characterizing the interactions.
 
 * Check our [website] (http://wanglab.pcbi.upenn.edu/hippie/) for instruction of installation and usage. 
 
