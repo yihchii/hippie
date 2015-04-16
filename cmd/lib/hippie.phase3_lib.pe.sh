@@ -37,5 +37,5 @@ function getPeakFragment {
 
 function annotateFragment {
     echo -e "\033[1mSubmitting annotateFragment \033[0m"
-    $QSUB -hold_jid getPeakFragment${LINE} -N annotateFragment${LINE} $QSUBARGS -l h_vmem=6G "$CMD_DIR/annotateFragment.sh" "${BED_DIR}" "${LINE}" "${RE}" "${THRE}"
+    $QSUB -hold_jid ${LINE}_getPeakFragment -N ${LINE}_annotateFragment $QSUBARGS -l h_vmem=6G "$CMD_DIR/annotateFragment.sh" "${BED_DIR}" "${LINE}" "${RE}" "${THRE}"
 }
