@@ -9,7 +9,7 @@ CELL=$4
 THRE=$5
 
 # aggregate all interactions from each chromosome or inter-chromosomal interactions
-cat ${BED_DIR}/chr*_${THRE}_reads_interaction_pvalue.txt ${BED_DIR}/${LINE}_interChrm_${THRE}_reads_interaction_pvalue.txt > ${OUT_DIR}/${LINE}_${THRE}_promoter_annotated_promoterInteraction_pvalue.bed
+cat ${BED_DIR}/chr*_${THRE}_reads_interaction_pvalue.txt ${BED_DIR}/${LINE}_interChrm_${THRE}_reads_interaction_pvalue.txt > ${OUT_DIR}/${LINE}_${THRE}_interaction_pvalue.bed
 
 # find all promoter interaction
 cat ${BED_DIR}/*${THRE}_promoter_annotated_promoterInteraction_pvalue.txt ${BED_DIR}/*${THRE}_interChrm_promoterInteraction_pvalue.txt |awk 'BEGIN{OFS="\t"}{ if ($8>0){sub (/:/,"\t",$2);sub (/-/,"\t",$2);print $2,$9,$3,$4;}if($13>0){sub (/:/,"\t",$1);sub (/-/,"\t",$1); print $1,$14,$3,$4;}}'|sort -T $TMPDIR -k1,1 -k2,2n >  ${OUT_DIR}/${LINE}_${THRE}_partnerTogene.bed

@@ -15,23 +15,23 @@ function collapseData {
 
 function consecutiveReadsS {
     echo -e "\033[1mSubmitting consecutiveReadsS \033[0m"
-    $QSUB -hold_jid "${LINE}_collapseData" -N consecutiveReadsS${LINE} $QSUBARGS -l h_vmem=2G "$CMD_DIR/consecutiveReadsS.sh" "${BED_DIR}" "${LINE}_specific.bed" "${LINE}" 
+    $QSUB -hold_jid "${LINE}_collapseData" -N ${LINE}_consecutiveReadsS $QSUBARGS -l h_vmem=2G "$CMD_DIR/consecutiveReadsS.sh" "${BED_DIR}" "${LINE}_specific.bed" "${LINE}" 
 }
 
 function consecutiveReadsNS {
     echo -e "\033[1mSubmitting consecutiveReads \033[0m"
-    $QSUB -hold_jid "${LINE}_collapseData" -N consecutiveReadsNS${LINE} $QSUBARGS -l h_vmem=2G "$CMD_DIR/consecutiveReadsNS.sh" "${BED_DIR}" "${LINE}_nonspecific.bed" "${LINE}" 
+    $QSUB -hold_jid "${LINE}_collapseData" -N ${LINE}_consecutiveReadsNS $QSUBARGS -l h_vmem=2G "$CMD_DIR/consecutiveReadsNS.sh" "${BED_DIR}" "${LINE}_nonspecific.bed" "${LINE}" 
 		
 }
 
 function getFragmentsRead {
     echo -e "\033[1mSubmitting getFragmentsRead \033[0m"
-    $QSUB -hold_jid consecutiveReads*${LINE} -N getFragmentsRead${LINE} $QSUBARGS -l h_vmem=1G "$CMD_DIR/getFragmentsRead.sh" "${BED_DIR}" "${LINE}"  "${RE}"
+    $QSUB -hold_jid "${LINE}_consecutiveReadsS","${LINE}_consecutiveReadsNS" -N "${LINE}_getFragmentsRead" $QSUBARGS -l h_vmem=1G "$CMD_DIR/getFragmentsRead.sh" "${BED_DIR}" "${LINE}"  "${RE}"
 }
 
 function getPeakFragment {
     echo -e "\033[1mSubmitting getPeakFragment \033[0m"
-    $QSUB -hold_jid getFragmentsRead${LINE} -N getPeakFragment${LINE} $QSUBARGS -l h_vmem=6G "$CMD_DIR/getPeakFragment.sh" "${BED_DIR}" "${LINE}" "${RE}" "${THRE}" "${SIZE_SELECT}"
+    $QSUB -hold_jid "${LINE}_getFragmentsRead" -N ${LINE}_getPeakFragment $QSUBARGS -l h_vmem=6G "$CMD_DIR/getPeakFragment.sh" "${BED_DIR}" "${LINE}" "${RE}" "${THRE}" "${SIZE_SELECT}"
 }
 
 
