@@ -65,7 +65,7 @@ output <- NULL
 write.table(s_data3, file=peak_fragment, quote = FALSE, sep = "\t", row.names=FALSE,col.names = FALSE)
 
 
-read_distribution <- paste(fragment_prefix,"pdf",sep=".")
+read_distribution <- paste(bed_path,"/",fragment_prefix,".pdf",sep = "");
 pdf (read_distribution)
 p1 <- hist(ns_data2$normReads,breaks=c(seq(0,250)/100,max(ns_data2$normReads)),xlim=c(0,2.5),probability=TRUE,plot=FALSE)
 p2 <- hist(s_data2$normReads,breaks=c(seq(0,250)/100,max(s_data2$normReads)),xlim=c(0,2.5),probability=TRUE,plot=FALSE)
