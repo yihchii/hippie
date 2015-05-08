@@ -2,7 +2,7 @@
 
 #HIPPIE-GC-Mapp
 
-* HIPPIE-GC-Mapp is an appending pipeline of [HIPPIE] (https://github.com/yihchii/hippie) for calculating gc content and mappability for the restriction fragments based on parameters like the restrizipn enzyme, size-selection, and read length that are specific to the Hi-C protocol performed.
+* HIPPIE-GC-Mapp is an appending pipeline of [HIPPIE] (https://github.com/yihchii/hippie) for calculating gc content and mappability for the restriction fragments based on parameters like the restriction enzyme, size-selection, and read length that are specific to the Hi-C protocol performed.
 * HIPPIE-GC-Mapp generates a required input file for HIPPIE for the `correctHiCBias` step.
 
 
