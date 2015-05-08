@@ -32,7 +32,7 @@
 cd /path/to/hippie_gc_mapp/
 sh ./hippie_gc_mapp.sh
 ```
-* The output file will be at `/path/to/hippie_gc_mapp/` with the name as `*RE*_fragment_GC_MAPP_LEN.bed`, where *RE* will be replaced by the restriction enzyme name (e.g. HindIII).
+* The output file will be at `/path/to/hippie_gc_mapp/` with the name as `*RE*_fragment_GC_MAPP_LEN.bed`, where \*RE\* will be replaced by the restriction enzyme name (e.g. HindIII).
 
 
 
