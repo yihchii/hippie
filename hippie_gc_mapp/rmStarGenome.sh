@@ -10,4 +10,7 @@ ${STAR} \
   --genomeLoad Remove \
   --outFileNamePrefix "${PWD}/rmStarGenome"
 
-
+rm rmStarGenomeLog.progress.out
+rm rmStarGenomeAligned.out.sam
+rm rmStarGenomeLog.out
+rm -rf rmStarGenome_STARtmp
